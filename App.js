@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
-import Navigator from './Navigation/appNavigator';
+import Navigator from "./Navigation/appNavigator";
+import store from "./Redux/store";
+import { Provider} from "react-redux";
 const instructions = Platform.select({
   ios: "Press Cmd+R to reload,\n" + "Cmd+D or shake for dev menu",
   android:
@@ -9,12 +11,18 @@ const instructions = Platform.select({
 });
 
 type Props = {};
-export default class App extends Component<Props> {
+class App extends Component<Props> {
   render() {
-    return <Navigator/>
+    return (
+      <Provider store={store}>
+        <Navigator />
+      </Provider>
+    );
     // <View ><Text>Hello World</Text></View>;
   }
 }
+
+export default App
 
 const styles = StyleSheet.create({
   container: {

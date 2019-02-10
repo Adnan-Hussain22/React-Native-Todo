@@ -10,24 +10,27 @@ import {
   Input,
   Button
 } from "native-base";
-import { TodoModal } from "../../Components";
 import { TouchableOpacity, Modal } from "react-native";
 import styles from "./styles";
-// import { Firebase } from "../../Config";
-export default class Login extends Component {
+import { connect } from "react-redux";
+import { TodoActions } from "../../Redux/Actions";
+// import { fireStore,firebase
+//  } from "../../Config/Firebase/firebase";
+class Home extends Component {
   state = {
-    todos: [
-      {
-        title: "asd",
-        description: "asd",
-        date: 12312112,
-        done: false
-      }
-    ],
+    todos: [],
     showModal: false,
     title: "",
     description: ""
   };
+
+  componentDidMount() {
+    console.log(this.props);
+  }
+
+  componentWillReceiveProps(nextProps, preProps) {
+    this.setState({ todos: nextProps.todos });
+  }
 
   //close the todo form modal
   handleOnCloseModal = () => {
@@ -44,7 +47,8 @@ export default class Login extends Component {
         date: new Date().getTime(),
         done: false
       };
-      this.setState({ todos: todos.concat(obj), showModal: false });
+      this.props.addTodo(obj);
+      this.setState({ showModal: false });
     }
   };
 
@@ -52,13 +56,15 @@ export default class Login extends Component {
   handleTodoDone = key => {
     const { todos } = this.state;
     todos[key].done = !todos[key].done;
-    this.setState({ todos });
+    // this.setState({ todos });
+    this.props.doneTodo(!todos[key].done, key);
   };
 
   //handle to remove a todo
   handleRemoveTodo = key => {
     const { todos } = this.state;
-    this.setState({ todos: todos.filter((value, index) => index != key) });
+    // this.setState({ todos: todos.filter((value, index) => index != key) });
+    this.props.removeTodo(key);
   };
 
   //method to render
@@ -76,7 +82,7 @@ export default class Login extends Component {
   renderView = () => {
     return (
       <View>
-        <Text style={styles.brand}>Managment You Want</Text>
+        <Text style={styles.brand}>Management You Want</Text>
         <TouchableOpacity>
           <Button
             block
@@ -122,7 +128,7 @@ export default class Login extends Component {
               </View>
             }
             right={
-              <Button danger onPress={()=>this.handleRemoveTodo(index)}>
+              <Button danger onPress={() => this.handleRemoveTodo(index)}>
                 <Icon active name="trash" />
               </Button>
             }
@@ -195,3 +201,24 @@ export default class Login extends Component {
     );
   };
 }
+
+const mapStateToProps = state => {
+  console.log("mapStateToProps==>", state.todoReducer);
+  return {
+    todos: state.todoReducer.todos
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    addTodo: todo => dispatch(TodoActions.addTodo(todo)),
+    updateTodo: (todo, index) => dispatch(TodoActions.updateTodo(todo, index)),
+    doneTodo: (status, index) => dispatch(TodoActions.doneTodo(status, index)),
+    removeTodo: id => dispatch(TodoActions.removeTodo(id))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Home);
